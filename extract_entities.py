@@ -17,7 +17,7 @@ class extract_entities(object):
 
     def get_places(self):
         places = []
-        tags = ['Country','Continent','City','StateOrCounty','Region']
+        tags = ['Country','Continent','City','GeographicFeature','StateOrCounty','Region']
         for ent in self.response['entities']:
             if ent['type'] in tags:
                 places.append([ent['text'], ent['disambiguated']['dbpedia']])
