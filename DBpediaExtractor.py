@@ -68,6 +68,9 @@ class DBpediaExtractor(object):
 	def get_name(self):
 		return self.get_properties("name")
 
+	def get_label(self):
+		return [str(self.g.preferredLabel(rdflib.term.URIRef(self.url), lang="en")[0][1])]
+
 	def get_comment(self):
 		return self.get_misc("http://www.w3.org/2000/01/rdf-schema#comment")
 
