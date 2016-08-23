@@ -12,7 +12,10 @@ class extract_entities(object):
         for ent in self.response['entities']:
             if 'disambiguated' in ent:
                 if ent['type']=='Person':
-                    names.append([ent['text'], ent['disambiguated']['dbpedia']])
+                    try:
+                        names.append([ent['text'], ent['disambiguated']['dbpedia']])
+                    except:
+                        pass
         return names
 
     def get_places(self):
