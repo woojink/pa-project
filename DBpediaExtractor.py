@@ -1,12 +1,22 @@
-import pprint
 import rdflib
-import requests
-from urllib.parse import urlparse
 
 BASE_URL = 'http://dbpedia.org/resource/'
 
 class DBpediaExtractor(object):
+	"""
+	Extractor for DBPedia
+
+	Attributes:
+		entity (str): URL friendly name for the entity
+		url (str): The main resource URL
+		g (rdflib graph): DBPedia RDF graph object
+	"""
+
 	def __init__(self, url):
+		"""
+		Args:
+			url (str): Raw DBPedia URL
+		"""
 		self.entity = url.split('/')[-1]
 		self.url = BASE_URL + self.entity
 		self.g = self.get_rdf()
@@ -17,12 +27,24 @@ class DBpediaExtractor(object):
 		return g
 
 	def get_ontology(self, endpoint):
+		"""
+		Returns ontology information for the given endpoint
+
+		Args:
+			endpoint (url): Endpoint for the desired ontology
+		"""
 		r_list = []
 		for stmt in self.g.subject_objects(rdflib.URIRef("http://dbpedia.org/ontology/" + endpoint)):
 			r_list.append(str(stmt[1]))
 		return r_list
 
 	def get_properties(self, endpoint):
+		"""
+		Returns properties for the given endpoint
+
+		Args:
+			endpoint (str): Endpoint for the desired properties
+		"""
 		r_list = []
 		for stmt in self.g.subject_objects(rdflib.URIRef("http://dbpedia.org/property/" + endpoint)):
 			r_list.append(str(stmt[1]))
@@ -55,6 +77,7 @@ class DBpediaExtractor(object):
 	def get_spouse(self):
 		r_list = []
 		for stmt in self.g.subject_objects(rdflib.URIRef("http://dbpedia.org/ontology/" + "spouse")):
+			# Filters through to exclude symmetrical (repeated) information
 			if str(stmt[1]) != self.url:
 				r_list.append(str(stmt[1]))
 		return r_list
