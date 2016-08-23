@@ -39,7 +39,7 @@ class DBpediaExtractor(object):
 			r_list.append(str(stmt[1]))
 		return r_list
 
-	def get_properties(self, endpoint):
+	def get_properties(self, endpoint, subject=False):
 		"""
 		Returns properties for the given endpoint
 
@@ -48,7 +48,10 @@ class DBpediaExtractor(object):
 		"""
 		r_list = []
 		for stmt in self.g.subject_objects(rdflib.URIRef("http://dbpedia.org/property/" + endpoint)):
-			r_list.append(str(stmt[1]))
+			if subject:
+				r_list.append(str(stmt[0]))
+			else:
+				r_list.append(str(stmt[1]))
 		return r_list
 
 	def get_geo(self, endpoint):
@@ -57,10 +60,14 @@ class DBpediaExtractor(object):
 			r_list.append(float(stmt[1]))
 		return r_list
 
-	def get_misc(self, endpoint):
+	def get_misc(self, endpoint, lang=None):
 		r_list = []
-		for stmt in self.g.subject_objects(rdflib.URIRef(endpoint)):
-			if stmt[1].language == "en":
+		if lang:
+			for stmt in self.g.subject_objects(rdflib.URIRef(endpoint)):
+				if stmt[1].language == lang:
+					r_list.append(str(stmt[1]))
+		else:
+			for stmt in self.g.subject_objects(rdflib.URIRef(endpoint)):
 				r_list.append(str(stmt[1]))
 		return r_list
 
@@ -72,7 +79,7 @@ class DBpediaExtractor(object):
 		return [str(self.g.preferredLabel(rdflib.term.URIRef(self.url), lang="en")[0][1])]
 
 	def get_comment(self):
-		return self.get_misc("http://www.w3.org/2000/01/rdf-schema#comment")
+		return self.get_misc("http://www.w3.org/2000/01/rdf-schema#comment", lang="en")
 
 	# People
 	def get_birthDate(self):
@@ -103,6 +110,12 @@ class DBpediaExtractor(object):
 			if str(stmt[1]) != self.url:
 				r_list.append(str(stmt[1]))
 		return r_list
+
+	def get_description(self):
+		return self.get_misc("http://purl.org/dc/elements/1.1/description", lang="en")
+
+	def get_mp(self):
+		return self.get_properties("mp", subject=True)
 
 	# Locations
 	def get_coordinates(self):
