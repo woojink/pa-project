@@ -20,7 +20,8 @@ class DBpediaExtractor(object):
 		self.entity = url.split('/')[-1]
 		self.url = BASE_URL + self.entity
 		self.g = self.get_rdf()
-		
+	
+	# Internal functions
 	def get_rdf(self):
 		g = rdflib.Graph()
 		g.load(self.url)
@@ -50,9 +51,27 @@ class DBpediaExtractor(object):
 			r_list.append(str(stmt[1]))
 		return r_list
 
+	def get_geo(self, endpoint):
+		r_list = []
+		for stmt in self.g.subject_objects(rdflib.URIRef("http://www.w3.org/2003/01/geo/wgs84_pos#" + endpoint)):
+			r_list.append(float(stmt[1]))
+		return r_list
+
+	def get_misc(self, endpoint):
+		r_list = []
+		for stmt in self.g.subject_objects(rdflib.URIRef(endpoint)):
+			if stmt[1].language == "en":
+				r_list.append(str(stmt[1]))
+		return r_list
+
+	# General
 	def get_name(self):
 		return self.get_properties("name")
 
+	def get_comment(self):
+		return self.get_misc("http://www.w3.org/2000/01/rdf-schema#comment")
+
+	# People
 	def get_birthDate(self):
 		return self.get_ontology("birthDate")
 
@@ -81,3 +100,13 @@ class DBpediaExtractor(object):
 			if str(stmt[1]) != self.url:
 				r_list.append(str(stmt[1]))
 		return r_list
+
+	# Locations
+	def get_coordinates(self):
+		"""
+		Returns:
+			(lat, lng): Tuple of latitude, longitude coordinates
+		"""
+		lat = self.get_geo('lat')
+		lng = self.get_geo('long')
+		return list(zip(lat, lng))
