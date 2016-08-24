@@ -13,7 +13,7 @@ class extract_entities(object):
             if 'disambiguated' in ent:
                 if ent['type']=='Person':
                     try:
-                        names.append((ent['text'], ent['disambiguated']['dbpedia']))
+                        names.append((ent['text'], ent['disambiguated']['dbpedia'],ent['relevance']))
                     except:
                         pass
         return names
@@ -24,7 +24,7 @@ class extract_entities(object):
         for ent in self.response['entities']:
             if ent['type'] in tags:
                 try:
-                    places.append((ent['text'], ent['disambiguated']['dbpedia']))
+                    places.append((ent['text'], ent['disambiguated']['dbpedia'],ent['relevance']))
                 except:
                     pass
         return places
