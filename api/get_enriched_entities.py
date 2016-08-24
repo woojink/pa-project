@@ -1,5 +1,5 @@
-from extract_entities import extract_entities
-from DBpediaExtractor import DBpediaExtractor
+from .extract_entities import extract_entities
+from .DBpediaExtractor import DBpediaExtractor
 import json
 
 def get_enriched_entities(text):

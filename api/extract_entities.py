@@ -1,8 +1,6 @@
-from alchemyapi import AlchemyAPI
+from .alchemyapi import AlchemyAPI
 
 alchemyapi = AlchemyAPI()
-
-
 
 class extract_entities(object):
 
@@ -15,7 +13,7 @@ class extract_entities(object):
             if 'disambiguated' in ent:
                 if ent['type']=='Person':
                     try:
-                        names.append((ent['text'], ent['disambiguated']['dbpedia'],float(ent['relevance'])))
+                        names.append((ent['text'], ent['disambiguated']['dbpedia'], float(ent['relevance'])))
                     except:
                         pass
         return names
@@ -26,7 +24,7 @@ class extract_entities(object):
         for ent in self.response['entities']:
             if ent['type'] in tags:
                 try:
-                    places.append((ent['text'], ent['disambiguated']['dbpedia'],float(ent['relevance'])))
+                    places.append((ent['text'], ent['disambiguated']['dbpedia'], float(ent['relevance'])))
                 except:
                     pass
         return places
