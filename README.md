@@ -11,4 +11,5 @@ pip3 install -r requirements.txt
 
 ## Getting started
 * Start your application with `python3 app.py`
-    - For different options for running, see [here](http://flask.pocoo.org/docs/0.11/api/)
+    - By default, the service runs on port 5000
+    - For more options, see [here](http://flask.pocoo.org/docs/0.11/api/)
