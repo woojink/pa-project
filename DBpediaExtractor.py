@@ -76,7 +76,7 @@ class DBpediaExtractor(object):
 		return self.get_properties("name")
 
 	def get_label(self):
-		return [str(self.g.preferredLabel(rdflib.term.URIRef(self.url), lang="en")[0][1])]
+		return str(self.g.preferredLabel(rdflib.term.URIRef(self.url), lang="en")[0][1])
 
 	def get_comment(self):
 		return self.get_misc("http://www.w3.org/2000/01/rdf-schema#comment", lang="en")
@@ -126,3 +126,9 @@ class DBpediaExtractor(object):
 		lat = self.get_geo('lat')
 		lng = self.get_geo('long')
 		return list(zip(lat, lng))
+
+	def get_latitude(self):
+		return self.get_geo('lat')
+
+	def get_longitude(self):
+		return self.get_geo('long')
