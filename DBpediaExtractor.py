@@ -17,7 +17,7 @@ class DBpediaExtractor(object):
 		Args:
 			url (str): Raw DBPedia URL
 		"""
-		self.entity = url.split('/')[-1]
+		self.entity = url.split("http://dbpedia.org/resource/")[-1]
 		self.url = BASE_URL + self.entity
 		self.g = self.get_rdf()
 	
@@ -101,7 +101,7 @@ class DBpediaExtractor(object):
 		return self.get_ontology("knownFor")
 
 	def get_almaMater(self):
-		return self.get_properties("almaMater")
+		return self.get_ontology("almaMater")
 
 	def get_spouse(self):
 		r_list = []
