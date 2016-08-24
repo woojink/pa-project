@@ -14,9 +14,7 @@ def get_enriched_entities(text):
 	for (alchemy_label, uri, rel) in name_list:
 		return_dict.append(get_name_dict(alchemy_label, uri, rel))
 
-	import pprint as pp
-	pp.pprint(return_dict)
-	return json.dumps(return_dict)
+	return json.dumps(return_dict, indent=2, sort_keys=True)
 
 def get_place_dict(alchemy_label, uri, rel):
 	t_dict = {}
