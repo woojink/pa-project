@@ -13,3 +13,6 @@ pip3 install -r requirements.txt
 * Start your application with `python3 app.py`
     - By default, the service runs on port 5000
     - For more options, see [here](http://flask.pocoo.org/docs/0.11/api/)
+
+## Useful links
+* [DBpedia SPARQL Explorer](http://dbpedia.org/snorql/)
