@@ -177,7 +177,7 @@ class DBpediaExtractor(object):
     def get_description(self):
         return self.get_misc("http://purl.org/dc/elements/1.1/", "description", lang="en")
 
-    def get_mp(self):
+    def get_mp_of(self):
         return self.get_properties("mp", subject=True)
 
     # Locations
