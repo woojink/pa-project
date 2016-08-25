@@ -54,6 +54,7 @@ def get_name_dict(alchemy_label, uri, rel, expand=True):
     t_dict['deathplace'] = expand_place(dbe.get_deathPlace())
     t_dict['description'] = dbe.get_description()
     t_dict['known_for'] = dbe.get_knownFor()
+    t_dict['mp'] = expand_place(dbe.get_mp())
     t_dict['residence'] = expand_place(dbe.get_residence())
     if expand:
         t_dict['spouse'] = expand_person(dbe.get_spouse())
