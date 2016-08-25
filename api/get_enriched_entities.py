@@ -58,7 +58,7 @@ def get_name_dict(alchemy_label, uri, rel, expand=True):
     if expand:
         t_dict['spouse'] = expand_person(dbe.get_spouse())
     else:
-        t_dict['spouse'] = dbe.get_spouse()
+        t_dict['spouse'] = []
 
     return t_dict
 
