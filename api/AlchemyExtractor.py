@@ -20,7 +20,7 @@ class AlchemyExtractor(object):
 
     def get_places(self):
         places = []
-        tags = ['Country','Continent','City','GeographicFeature','StateOrCounty','Region']
+        tags = ['Country', 'Continent', 'City', 'GeographicFeature', 'StateOrCounty', 'Region']
         for ent in self.response['entities']:
             if ent['type'] in tags:
                 try:
