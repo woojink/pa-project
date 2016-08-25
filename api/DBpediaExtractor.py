@@ -88,10 +88,10 @@ class DBpediaExtractor(object):
     def get_deathDate(self):
         return self.get_ontology("deathDate")
 
-    def get_birthPlace_uri(self):
+    def get_birthPlace(self):
         return self.get_ontology("birthPlace")
 
-    def get_deathPlace_uri(self):
+    def get_deathPlace(self):
         return self.get_ontology("deathPlace")
 
     def get_residence(self):

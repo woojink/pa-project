@@ -49,9 +49,9 @@ def get_name_dict(alchemy_label, uri, rel, expand=True):
     t_dict['alma_mater'] = expand_place(dbe.get_almaMater())
 
     t_dict['birth_date'] = dbe.get_birthDate()
-    t_dict['birthplace_uri'] = expand_place(dbe.get_birthPlace_uri())
+    t_dict['birthplace'] = expand_place(dbe.get_birthPlace())
     t_dict['death_date'] = dbe.get_deathDate()  
-    t_dict['deathplace_uri'] = expand_place(dbe.get_deathPlace_uri())
+    t_dict['deathplace'] = expand_place(dbe.get_deathPlace())
     t_dict['description'] = dbe.get_description()
     t_dict['known_for'] = dbe.get_knownFor()
     t_dict['residence'] = expand_place(dbe.get_residence())
