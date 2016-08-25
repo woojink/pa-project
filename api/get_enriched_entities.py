@@ -1,9 +1,9 @@
-from .extract_entities import extract_entities
+from .AlchemyExtractor import AlchemyExtractor
 from .DBpediaExtractor import DBpediaExtractor
 import json
 
 def get_enriched_entities(text):
-	ee = extract_entities(text)
+	ee = AlchemyExtractor(text)
 	return_dict = []
 
 	place_list = ee.get_places()

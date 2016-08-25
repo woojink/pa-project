@@ -2,7 +2,7 @@ from .alchemyapi import AlchemyAPI
 
 alchemyapi = AlchemyAPI()
 
-class extract_entities(object):
+class AlchemyExtractor(object):
 
     def __init__(self, myText):
         self.response = alchemyapi.entities("text", myText)
