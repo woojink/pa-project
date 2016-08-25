@@ -3,14 +3,14 @@ from .DBpediaExtractor import DBpediaExtractor
 import json
 
 def get_enriched_entities(text):
-    ee = AlchemyExtractor(text)
+    ae = AlchemyExtractor(text)
     return_dict = []
 
-    place_list = ee.get_places()
+    place_list = ae.get_places()
     for (alchemy_label, uri, rel) in place_list:
         return_dict.append(get_place_dict(alchemy_label, uri, rel))
 
-    name_list = ee.get_names()
+    name_list = ae.get_names()
     for (alchemy_label, uri, rel) in name_list:
         return_dict.append(get_name_dict(alchemy_label, uri, rel))
 
