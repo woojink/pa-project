@@ -18,7 +18,7 @@ class DBpediaExtractor(object):
         self.sparql = SPARQLWrapper("http://dbpedia.org/sparql")
     
     # Internal functions
-    def get_ontology(self, endpoint):
+    def get_ontology(self, endpoint, subject=False):
         """
         Returns ontology information for the given endpoint
 
@@ -26,11 +26,18 @@ class DBpediaExtractor(object):
             endpoint (url): Endpoint for the desired ontology
         """
         r_list = []
-        self.sparql.setQuery("""
-            PREFIX ont: <http://dbpedia.org/ontology/>
-            SELECT ?x
-            WHERE {{ <{url}> ont:{endpoint} ?x }}
-        """.format(url=self.url, endpoint=endpoint))
+        if subject:
+            self.sparql.setQuery("""
+                PREFIX ont: <http://dbpedia.org/ontology/>
+                SELECT ?x
+                WHERE {{ ?x ont:{endpoint} <{url}> }}
+            """.format(url=self.url, endpoint=endpoint))
+        else:
+            self.sparql.setQuery("""
+                PREFIX ont: <http://dbpedia.org/ontology/>
+                SELECT ?x
+                WHERE {{ <{url}> ont:{endpoint} ?x }}
+            """.format(url=self.url, endpoint=endpoint))
 
         self.sparql.setReturnFormat(JSON)
 
@@ -149,7 +156,8 @@ class DBpediaExtractor(object):
 
     def get_spouse(self):
         r_list = []
-        for spouse_uri in self.get_ontology("spouse"):
+        spouse_list = self.get_ontology("spouse") + self.get_ontology("spouse", subject=True)
+        for spouse_uri in spouse_list:
             # Filters through to exclude symmetrical (repeated) information
             if spouse_uri != self.url:
                 r_list.append(spouse_uri)
