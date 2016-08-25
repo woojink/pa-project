@@ -1,3 +1,4 @@
+import re
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 class DBpediaExtractor(object):
@@ -134,10 +135,20 @@ class DBpediaExtractor(object):
 
     # People
     def get_birthDate(self):
-        return self.get_ontology("birthDate")
+        dates = []
+        for date in self.get_ontology("birthDate"):
+            # Make sure the date is a full ISO date
+            if re.match('\d\d\d\d-[01]\d-[0-3]\d', date):
+                dates.append(date)
+        return dates
 
     def get_deathDate(self):
-        return self.get_ontology("deathDate")
+        dates = []
+        for date in self.get_ontology("deathDate"):
+            # Make sure the date is a full ISO date
+            if re.match('\d\d\d\d-[01]\d-[0-3]\d', date):
+                dates.append(date)
+        return dates
 
     def get_birthPlace(self):
         return self.get_ontology("birthPlace")
