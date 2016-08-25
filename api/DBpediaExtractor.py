@@ -1,6 +1,4 @@
-import rdflib
-
-BASE_URL = 'http://dbpedia.org/resource/'
+from SPARQLWrapper import SPARQLWrapper, JSON
 
 class DBpediaExtractor(object):
     """
@@ -9,7 +7,6 @@ class DBpediaExtractor(object):
     Attributes:
         entity (str): URL friendly name for the entity
         url (str): The main resource URL
-        g (rdflib graph): DBPedia RDF graph object
     """
 
     def __init__(self, url):
@@ -17,16 +14,10 @@ class DBpediaExtractor(object):
         Args:
             url (str): Raw DBPedia URL
         """
-        self.entity = url.split("http://dbpedia.org/resource/")[-1]
-        self.url = BASE_URL + self.entity
-        self.g = self.get_rdf()
+        self.url = url
+        self.sparql = SPARQLWrapper("http://dbpedia.org/sparql")
     
     # Internal functions
-    def get_rdf(self):
-        g = rdflib.Graph()
-        g.load(self.url)
-        return g
-
     def get_ontology(self, endpoint):
         """
         Returns ontology information for the given endpoint
@@ -35,8 +26,18 @@ class DBpediaExtractor(object):
             endpoint (url): Endpoint for the desired ontology
         """
         r_list = []
-        for stmt in self.g.subject_objects(rdflib.URIRef("http://dbpedia.org/ontology/" + endpoint)):
-            r_list.append(str(stmt[1]))
+        self.sparql.setQuery("""
+            PREFIX ont: <http://dbpedia.org/ontology/>
+            SELECT ?x
+            WHERE {{ <{url}> ont:{endpoint} ?x }}
+        """.format(url=self.url, endpoint=endpoint))
+
+        self.sparql.setReturnFormat(JSON)
+
+        results = self.sparql.query().convert()
+        for result in results["results"]["bindings"]:
+            r_list.append(result["x"]["value"])
+
         return r_list
 
     def get_properties(self, endpoint, subject=False):
@@ -47,28 +48,70 @@ class DBpediaExtractor(object):
             endpoint (str): Endpoint for the desired properties
         """
         r_list = []
-        for stmt in self.g.subject_objects(rdflib.URIRef("http://dbpedia.org/property/" + endpoint)):
-            if subject:
-                r_list.append(str(stmt[0]))
-            else:
-                r_list.append(str(stmt[1]))
+        if subject:
+            self.sparql.setQuery("""
+                PREFIX prop: <http://dbpedia.org/property/>
+                SELECT ?x
+                WHERE {{ ?x prop:{endpoint} <{url}> }}
+            """.format(url=self.url, endpoint=endpoint))
+        else:
+            self.sparql.setQuery("""
+                PREFIX prop: <http://dbpedia.org/property/>
+                SELECT ?x
+                WHERE {{ <{url}> prop:{endpoint} ?x }}
+            """.format(url=self.url, endpoint=endpoint))
+
+        self.sparql.setReturnFormat(JSON)
+
+        results = self.sparql.query().convert()
+        for result in results["results"]["bindings"]:
+            r_list.append(result["x"]["value"])
+
         return r_list
 
     def get_geo(self, endpoint):
         r_list = []
-        for stmt in self.g.subject_objects(rdflib.URIRef("http://www.w3.org/2003/01/geo/wgs84_pos#" + endpoint)):
-            r_list.append(float(stmt[1]))
+        self.sparql.setQuery("""
+            PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+            SELECT ?x
+            WHERE {{ <{url}> geo:{endpoint} ?x }}
+        """.format(url=self.url, endpoint=endpoint))
+
+        self.sparql.setReturnFormat(JSON)
+
+        results = self.sparql.query().convert()
+        for result in results["results"]["bindings"]:
+            r_list.append(float(result["x"]["value"]))
+
         return r_list
 
-    def get_misc(self, endpoint, lang=None):
+    def get_misc(self, prefix, endpoint, lang=None):
         r_list = []
+
         if lang:
-            for stmt in self.g.subject_objects(rdflib.URIRef(endpoint)):
-                if stmt[1].language == lang:
-                    r_list.append(str(stmt[1]))
+            self.sparql.setQuery("""
+                PREFIX pf: <{prefix}>
+                SELECT ?x
+                WHERE {{
+                    <{url}> pf:{endpoint} ?x
+                    FILTER (lang(?x) = '{lang}')
+                }}
+            """.format(url=self.url, prefix=prefix, endpoint=endpoint, lang=lang))
         else:
-            for stmt in self.g.subject_objects(rdflib.URIRef(endpoint)):
-                r_list.append(str(stmt[1]))
+            self.sparql.setQuery("""
+                PREFIX pf: <{prefix}>
+                SELECT ?x
+                WHERE {{
+                    <{url}> pf:{endpoint} ?x
+                }}
+            """.format(url=self.url, prefix=prefix, endpoint=endpoint))
+
+        self.sparql.setReturnFormat(JSON)
+
+        results = self.sparql.query().convert()
+        for result in results["results"]["bindings"]:
+            r_list.append(result["x"]["value"])
+
         return r_list
 
     # General
@@ -76,10 +119,11 @@ class DBpediaExtractor(object):
         return self.get_properties("name")
 
     def get_label(self):
-        return str(self.g.preferredLabel(rdflib.term.URIRef(self.url), lang="en")[0][1])
+        # return str(self.g.preferredLabel(rdflib.term.URIRef(self.url), lang="en")[0][1])
+        return self.get_misc("http://www.w3.org/2000/01/rdf-schema#", "label", lang="en")
 
     def get_comment(self):
-        return self.get_misc("http://www.w3.org/2000/01/rdf-schema#comment", lang="en")
+        return self.get_misc("http://www.w3.org/2000/01/rdf-schema#", "comment", lang="en")
 
     # People
     def get_birthDate(self):
@@ -105,14 +149,14 @@ class DBpediaExtractor(object):
 
     def get_spouse(self):
         r_list = []
-        for stmt in self.g.subject_objects(rdflib.URIRef("http://dbpedia.org/ontology/" + "spouse")):
+        for spouse_uri in self.get_ontology("spouse"):
             # Filters through to exclude symmetrical (repeated) information
-            if str(stmt[1]) != self.url:
-                r_list.append(str(stmt[1]))
+            if spouse_uri != self.url:
+                r_list.append(spouse_uri)
         return r_list
 
     def get_description(self):
-        return self.get_misc("http://purl.org/dc/elements/1.1/description", lang="en")
+        return self.get_misc("http://purl.org/dc/elements/1.1/", "description", lang="en")
 
     def get_mp(self):
         return self.get_properties("mp", subject=True)
